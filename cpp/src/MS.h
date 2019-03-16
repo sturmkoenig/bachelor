@@ -16,9 +16,10 @@ protected:
 	double a;
 public:
 	void euler(std::vector <matrix>&) override;
-	std::string namemodel();
+	std::string namemodel() override;
 	MS(double _dt, double _dx, double _D, int _Lx, int _Ly, int _time, double _v_gate, double _tau_in, double _tau_out, double _tau_open, double _tau_closed, double _a, const std::string initial_form);
-	bool load();
+	bool load() override;
+	bool load(std::string) override;
 	std::vector< matrix > force_MS(void);
 	void initial_conditions();
 

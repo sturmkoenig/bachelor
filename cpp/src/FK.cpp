@@ -156,8 +156,12 @@ void FK::euler(std::vector< matrix >& B)
 	B[1] = A[1] + dt * df();
 	B[2] = A[2] + dt * ds();
 
-	for(receiver rec:all_rec)
-		rec.force(A[0], time, dt);
+	if(_time > -1)
+	{
+	    for(receiver rec:all_rec)
+		rec.force(A[0], _time, dt);
+	    prtbtin.force(A[0], _time);
+	}
 
 	return;
 }

@@ -38,14 +38,12 @@ class sensor
         int tau;
         int t1; 
         int t2; 
-
+	int ID;
     public:
         sensor(int x, int y);
         int x();
         int y();
         std::string tmp_dir;
-        void move(std::vector<int> new_pos);
-        void move_sensor(void);
 };
 
 
@@ -66,8 +64,8 @@ class transmitter : public sensor
         int time();
         int freq;
         int AP_duration;
-        transmitter(int, int);
-        transmitter(int, int,std::string);
+        transmitter(int, int, int=0);
+        transmitter(int, int,std::string, int=0);
         int take(arma::mat& A, int time, double critical_value);
         int msr_time(double voltage, int time, double critical_value);
         void msr_frq(double,int,double);

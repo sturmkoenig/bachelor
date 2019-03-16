@@ -34,36 +34,6 @@ int sensor::y()
     return pos[1];
 }
 
-void sensor::move(std::vector< int > new_pos)
-{
-    for(int i=0; i<2; i++)
-    {
-        pos[i] += new_pos[i]; 
-    }
-}
-
-void sensor::move_sensor(void)
-{
-    std::vector<double> direction;
-    for(int i=0; i<2; i++)
-    { 
-        direction.push_back(final_pos[i] - pos[i]);
-    }
-    int length=sqrt(pow(direction[0],2)+pow(direction[1], 2));
-
-    for(int i=0; i<2; i++)
-    {
-        exakt_pos[i] += (direction[i]/length)*velocity;
-        if(exakt_pos[i] > 1 && exakt_pos[i] < MAT_SIZE-1)
-        {
-            pos[i] = (int) exakt_pos[i];
-        }
-    }
-
-    return;
-}
-
-
 /*--------------------------------------------------------------------------*/
 //				Receiver
 /*--------------------------------------------------------------------------*/
@@ -144,7 +114,7 @@ int receiver::delay_time()
 }
 
 /*--------------------------------------------------------------------------*/
-//						Transmiter
+//				Transmiter
 /*--------------------------------------------------------------------------*/
 
 int transmitter::time()
@@ -152,14 +122,34 @@ int transmitter::time()
     return t2-t1;
 }
 
-transmitter::transmitter(int x, int y) : sensor(x, y)
+transmitter::transmitter(int x, int y, int _ID) : sensor(x, y)
 {
     state = 0;
+    ID=_ID;
     tau = 0;
     t1 = 0;
     t2 = 0;
     std::fill(SAVE.begin(), SAVE.end(), 0);
     write_data = [](int time, double freq, int AP_duration, std::string filename){return;};
+}
+
+transmitter::transmitter(int x, int y, std::string _tmp_dir, int _ID) : sensor(x, y)
+{
+    ID=_ID;
+    state = 0;
+    tau = 0;
+    t1 = 0;
+    t2 = 0;
+    std::fill(SAVE.begin(), SAVE.end(), 0);
+    tmp_dir = _tmp_dir;
+    write_data = [](int time, double voltage, int AP_duration,std::string target_file)
+    {
+        std::ofstream data;
+        data.open(target_file, ios::app);
+        data << time << "\t" << voltage << std::endl;
+	data.close();
+        return;
+    };
 }
 
 void transmitter::dump_to_file(std::string path)
@@ -182,29 +172,6 @@ void transmitter::read_from_file(std::string path)
         SAVE = newVector;
         std::cout << "loaded saved data from :" << path << " into vector\n";
 	return;
-}
-
-transmitter::transmitter(int x, int y, std::string _tmp_dir) : sensor(x, y)
-{
-    state = 0;
-    tau = 0;
-    t1 = 0;
-    t2 = 0;
-    std::fill(SAVE.begin(), SAVE.end(), 0);
-    tmp_dir = _tmp_dir;
-    write_data = [](int time, double voltage, int AP_duration,std::string target_file)
-    {
-        //std::ofstream freq_dat;
-        //std::string name_of_file = "/scratch15/lauer/frequenz/" + target_file;
-        //freq_dat.open(name_of_file, std::ios::app);
-        //freq_dat << time << "\t" << freq << "\t" << AP_duration << std::endl;
-        //std::cout << "filename written to " << name_of_file << std::endl;
-        //freq_dat.close();
-        std::ofstream data;
-        data.open("AP.dat", ios::app);
-        data << time << "\t" << voltage << std::endl;
-        return;
-    };
 }
 
 double transmitter::dist_TR()
@@ -232,9 +199,9 @@ int transmitter::take(arma::mat& A, int time, double critical_value)
     std::rotate(SAVE.rbegin(), SAVE.rbegin() + 1, SAVE.rend());
     double rec= mean( mean( A(span(pos[0]-1,pos[0]+1), span(pos[1]-1,pos[1]+1)) ) ) ;
     SAVE[0] = rec;
-    if(time%20 == 0)
+    if(time>1000000 && time%20 == 0)
         write_data(time, rec, 1,  "irrelevant");
-    //msr_frq(rec, time, critical_value);
+    msr_frq(rec, time, critical_value);
     return 0;
 }
 
@@ -263,7 +230,7 @@ void transmitter::msr_frq(double voltage, int time, double crit_val)
         t1 = time; 
         state = 1;
         freq = t1-t2;
-        write_data(time,freq,AP_duration, name_of_file);
+        write_data(time,freq,AP_duration, "sensor"+std::to_string(ID));
         return;
     }	
 

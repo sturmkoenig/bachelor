@@ -1,5 +1,6 @@
 #include <armadillo>
 #include <vector>
+#include <array>
 #include <map>
 #include <cmath>
 #include <cstdio>
@@ -16,7 +17,7 @@
 #include "sensor.h"
 #include "perturbation.h"
 
-#define SIMTYP FK
+#define SIMTYP MS
 
 int main(int argc, char *argv[])
 {
@@ -28,6 +29,7 @@ int main(int argc, char *argv[])
         int tau = 0;
         int freq = 0;
         int dist = 0;
+	int save_steps = 0;
 
         // PREFIX is the dir name of output video if make_video is set to true
         std::string PREFIX;
@@ -43,27 +45,29 @@ int main(int argc, char *argv[])
 	if(initial_form == "sp")
 	    spiral_wave = true;
 
+	if( (load || load_specific_file) && initial_form!="vanilla")
+	{
+	    std::cout << "ERROR: There is a initial_form even though data is beeing loaded\n";
+	    std::cout << "Initial_form is: " << initial_form << std::endl;
+	}
 	
          
        // initialize mitchell schaeffer system. Parameters can be looked at in MS.h
-       //SIMTYP simulation( 0.2,    0.1, 0.001,MAT_SIZE, MAT_SIZE, 2000000,    0.13,   .4,    10.,         130.,       150.,       0.0, initial_form);
-	/*	
-	 Fenton-karma Model for latter use  
-	 */
-	//				dt,			dx,				D,	
-	SIMTYP simulation = FK { 0.2,		 	0.1, 			1e-3, 
-	//				Lx,				Ly,			time, 
-					MAT_SIZE, 	MAT_SIZE, 		200000,
-	// 			tau_fast,		tau_ung, 		tau_slow,		
-					.25,			130,			127,
-	// 			tau_sopen,		tau_sclose,		tau_fopen,		
-					80,				1000,			18,
-	// 			tau_fclose,		V_sgate,		V_fgate,		
-					10,				.13,			.13,		
-	// 			V_crit,			V_sig,			V_out,				
-					.13,			.85,			.1,			
-	//			kappa
-					10};
+       
+
+#if defined UNSTABLE
+	/*	    instable parameters		*/
+       SIMTYP simulation( 0.2,    0.1, 0.001,MAT_SIZE_X, MAT_SIZE_Y, SIMULATION_TIME,    0.13,   .4,    10.,         130.,       150.,       0.0, initial_form);
+
+#endif
+
+       /*------------------------------------------------------------------------------------------------*/
+
+#if defined STABLE
+       /*	    stable parameters		*/
+       SIMTYP simulation( 0.2,    0.1, 0.001,MAT_SIZE_X, MAT_SIZE_Y, SIMULATION_TIME,    0.13,   .3,    6.,         120.,       150.,       0.0, initial_form);
+#endif
+
 
        /*------------------------------------------------------------------------------------------------
           *         diffrent kinds of simulations can be addresed by diffrent argument counts
@@ -71,17 +75,36 @@ int main(int argc, char *argv[])
           *         for every type diffrent temporary dires and filenames are set
          ------------------------------------------------------------------------------------------------*/
 
-        // self-exiced periodicity test
-        if(argc == 3)
+	if(argc == 1)
+	{
+	    std::array<std::array<int, 2>, 2> receivers = { { {150,10}, {150, 15} } };
+	    std::array<std::array<int, 2>, 1> transmitters = { { {150,20} } };
+	    arma::Mat<int>::fixed<2, 1> links = {-1, -1};
+	    simulation.set_sensors<2, 1>(receivers, transmitters, links);
+	    simulation.tmp_dir = "/scratch15/lauer/tmp/";
+	}
+	// wave velocity
+	else if(argc == 2)
+	{
+	    std::cout << "measure wave propagation velocity\n";
+	    name_of_file = simulation.namemodel() + "_velocity_measurment";
+	    tmp_dir = "/scratch15/lauer/tmp/" + name_of_file + "/";
+	    std::cout << "temporary dire is " << tmp_dir << std::endl;
+	    simulation.velocity();
+	}
+
+       // self-except periodicity test
+       else if(argc == 3)
         {
             dist = atoi(argv[1]);
             tau = atoi(argv[2]);
+	    save_steps = 50000;
             PREFIX = "a";
-            name_of_file = simulation.namemodel() + "_bp_t_" + std::to_string(dist) + "_" + std::to_string(tau) + "ms";
+            name_of_file = simulation.namemodel() + "_unstable_self_excited_d_" + std::to_string(dist) + "_tau_" + std::to_string(tau); 
             tmp_dir = "/scratch15/lauer/tmp/" + name_of_file + "/";
             simulation.tmp_dir = tmp_dir;
             simulation.self_excited(dist,tau);
-            std::cout << "starting simulation with " << dist << "\t" << tau << "\t\n";
+            std::cout << "starting simulation with " << dist << "\t" << tau << "\n";
             std::cout << "temporary dire is " << tmp_dir << std::endl;
         }
 
@@ -92,7 +115,7 @@ int main(int argc, char *argv[])
             y1 = atoi(argv[2]); 
             freq = atoi(argv[3]);
             PREFIX = "a";
-            name_of_file = simulation.namemodel() + "_bp_fp_"+std::to_string(x1) + "," + std::to_string(y1) + "_"  + std::to_string(freq) + "ms";
+            name_of_file = simulation.namemodel() + "_bp_ACP_"+std::to_string(x1) + "," + std::to_string(y1) + "_"  + std::to_string(freq) + "ms";
             tmp_dir = "/scratch15/lauer/tmp/" + name_of_file + "/";
             simulation.tmp_dir = tmp_dir;
             simulation.fast_pacing(x1, y1, freq);
@@ -119,21 +142,39 @@ int main(int argc, char *argv[])
             std::cout << "wrong option count" << std::endl;
             return 0;
         }
-        
-        // making sure the folder exsist when generating video
-        if(visualization == "save frames" || visualization == "last frame" || save_final_state == true)	
-            int del_1 = std::system(("mkdir " + tmp_dir).c_str());
 
-        // tries to load the last calculated state
-        if(load)
-        {
+	// make the folder -p is for making parrent directorys 
+	std::cout << "mkdir " << tmp_dir << std::endl;
+	std::system(("mkdir -p " + tmp_dir).c_str());
+
+	// tries to load the last calculated state
+	if(load && !load_specific_file)
+	{
 	    if(!simulation.load())
 	    {
 		std::cout << "data could not be loaded\n";
 		return 0;
 	    }
-            std::cout << "data loaded succesfully\n";
-        }
+	    if(save_final_state == true)
+		std::system(("rm " + tmp_dir + "end_state*").c_str());
+	    std::cout << "data loaded succesfully\n";
+	}
+
+	else if(load_specific_file)
+	{
+	    if(!simulation.load(file_load_path))
+	    {
+		std::cout << "the specified file could not be loaded\n" << file_load_path << std::endl;
+	    }
+	}
+	
+	if(visualization == "save signal")
+	{
+	    // beforhand delete previous folder
+	    std::system(("rm -r " + simulation.tmp_dir +"Signal/").c_str());
+	   // make new one
+	    std::system(("mkdir -p " + simulation.tmp_dir +"Signal/").c_str());
+	}
             
          /*------------------------------------------------------------------------------------------------
                                         Perturbation class
@@ -163,7 +204,7 @@ int main(int argc, char *argv[])
 
         try
         {
-            simulation.simulation(visualization, spiral_wave, save_final_state, check_finished, freq, skpfr);
+            simulation.simulation(visualization, spiral_wave, save_final_state, check_finished, freq, skpfr, action_potential, save_steps);
         }
 
         catch(const std::exception& e)

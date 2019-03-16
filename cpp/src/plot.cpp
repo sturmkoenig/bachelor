@@ -25,8 +25,8 @@ void plot::phasemap(arma::mat& pm, double* range)
     gp << "set cbrange [" << range[0] << ":" << range[1] << "]\n";
     //gp << "set loadpath '../gnuplot/palettes'\n"; 
     //gp << "load 'magma.pal'\n";
-    gp << "set xrange [0:" << L-1 << "]\n";
-    gp << "set yrange [0:" << L-1 << "]\n";
+    gp << "set xrange [0:" << Lx-1 << "]\n";
+    gp << "set yrange [0:" << Ly-1 << "]\n";
     gp << "set pm3d map\n";
     gp << "unset xtics\n";
     gp << "unset ytics\n";
@@ -38,17 +38,18 @@ void plot::phasemap(arma::mat& pm, double* range)
 
 void plot::heatmap(arma::mat& A)
 {
+    double scale = Lx/Ly;
     gp << "set cbrange [0.:1.]\n";
     //gp << "set loadpath '../gnuplot/palettes'\n"; 
     //gp << "load 'magma.pal'\n";
-    gp << "set xrange [0:" << L-1 << "]\n";
-    gp << "set yrange [0:" << L-1 << "]\n";
+    gp << "set xrange [0:" << 300 << "]\n";
+    gp << "set yrange [0:" << 300 << "]\n";
     gp << "set pm3d map\n";
     gp << "unset xtics\n";
     gp << "unset ytics\n";
     gp << "unset key\n";
     gp << "unset colorbox\n";
-    gp << "set terminal qt size 700,700\n";
+    // gp << "set terminal qt size "  << int(700./scale) << "," << 700 << "\n";
     gp << "splot '-' binary" << gp.binFmt2d(A, "array") << "with image\n";
     gp.sendBinary2d(A);
 }

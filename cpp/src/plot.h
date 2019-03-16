@@ -12,7 +12,9 @@ class plot
 protected:
 	Gnuplot& gp;
 	std::vector< double > data;
-	int L = MAT_SIZE;
+	int Lx = MAT_SIZE_X;
+	int Ly = MAT_SIZE_Y;
+
 public:
 	plot(Gnuplot& gnuplt): gp(gnuplt){ }
 	void AP( std::vector< std::pair<double, double> >);

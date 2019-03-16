@@ -20,7 +20,7 @@ perturbation::perturbation(int time, int posx, int posy, int drnt, int frqn)
     f = frqn;
 
     // incase of out of bound parameters throw error
-    if(x<0 || x>MAT_SIZE || y<0 || y>MAT_SIZE)
+    if(x<0 || x>MAT_SIZE_X || y<0 || y>MAT_SIZE_Y)
         throw std::invalid_argument("perturbation position out of bounds ");
     return;
 }

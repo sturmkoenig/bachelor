@@ -11,7 +11,7 @@ protected:
 	double v_off;
 	double h_off;
 public:
-	phasemap(double ov = 0.25, double oh = 0.4)
+	phasemap(double ov = 0.35, double oh = 0.3)
 	{
 		v_off = ov;
 		h_off = oh;

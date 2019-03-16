@@ -49,15 +49,24 @@ void Heart_Simulation::set_sensors(int x1, int y1, int x2, int y2, int tau)
 
 void Heart_Simulation::fast_pacing(int x, int y, int freq)
 {
+    this->name_of_file = this->namemodel() + "_fp_" + std::to_string(x) + "_" + std::to_string(y)+ "_f=" + std::to_string(freq) +".dat";
+    all_trans.push_back(transmitter(50,150, "/scratch15/lauer/pe_sp_t5e4/"));
     all_rec.push_back(receiver(x, y, freq));
+    return;
+}
+
+void Heart_Simulation::velocity()
+{
+    all_trans.push_back(transmitter(150,150, tmp_dir, 1));
+    all_trans.push_back(transmitter(150, 250, tmp_dir, 2));
     return;
 }
 
 void Heart_Simulation::self_excited(int dist,int tau)
 {
 
-    all_trans.push_back(transmitter(150, 150+dist));
-    all_rec.push_back(receiver(150,150));
+    all_trans.push_back(transmitter(50+dist, 150));
+    all_rec.push_back(receiver(50,150));
     //all_rec[0].set_external_force( [](int time) {if(time<1){return 1.;}else{return 0.;}});
     //all_trans[1].name_of_file = std::to_string(dist) + "_" + std::to_string(tau) + ".dat";
     link_trans LA= {&all_trans[0],tau};
@@ -68,8 +77,12 @@ void Heart_Simulation::self_excited(int dist,int tau)
 
 void Heart_Simulation::set_sensors(int number_of_pairs)
 {
+    this->name_of_file = this->namemodel() + "_#S=" + std::to_string(number_of_pairs) + ".dat";
     if(number_of_pairs == 0)
+    {
+	all_trans.push_back(transmitter(50,150, "/scratch15/lauer/pe_sp_t5e4/"));
         return;
+    }
 
     Gnuplot gp;
     plot plt(gp);
@@ -147,6 +160,11 @@ bool Heart_Simulation::load()
     return false;
 }
 
+bool Heart_Simulation::load(std::string path)
+{
+    return false;
+}
+
 void Heart_Simulation::euler(std::vector< matrix >& B)
 {
     return;
@@ -177,13 +195,11 @@ void Heart_Simulation::save_frame(arma::mat& plot, std::string name)
     std::ofstream outfile;
     outfile.open(name, std::ios::out);
     int i,j;
-    for (i = 0; i < Lx; i+=2)
+    for (i = 0; i < Lx; i++)
     {
-        for (j = 0; j < Ly; j+=2)
-        {
-            outfile << plot(i,j) << " ";
-        }
-        outfile << std::endl;
+        for (j = 0; j < Ly; j++)
+          outfile << plot(i,j) << " ";
+      outfile << std::endl;
     }
 
     outfile.close();
@@ -219,7 +235,7 @@ void Heart_Simulation::check_if_terminated(int num_ps, int& counter)
     return; 
 }
 
-void Heart_Simulation::simulation(const std::string visualization, const bool spiral_waves, const bool save_final_state, const bool check_finished, int freq, const int skip_frames)
+void Heart_Simulation::simulation(const std::string visualization, const bool spiral_waves, const bool save_final_state, const bool check_finished, int freq, const int skip_frames, const bool action_potential, int save_steps)
 {
     Gnuplot gp;
     class plot plt(gp);
@@ -230,6 +246,10 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
     int num_ps = 0;
     int counter = 0;
     int i=0;
+    if(visualization=="save_signal")
+    {
+	std::system(("mkdir -p " + tmp_dir + "Signal").c_str());
+    }
 
     for(i=0; i<time; i++)
     {
@@ -266,6 +286,8 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
 
                 check_if_terminated(num_ps, counter);
             }
+	    if(action_potential)
+		std::cout << v(80,150) << "\t" << h(80,150) << std::endl;
 
             if(visualization == "plot")
             {		
@@ -275,6 +297,15 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
                 // plot(arma::span(all_rec[0].x()-1, all_rec[0].x()+1), arma::span(all_rec[0].y()-1, all_rec[0].y()+1)).fill(0.1);
                 plt.heatmap(plot);
             }
+
+	    else if(visualization == "save signal" && i+save_steps>=time)
+	    {
+		save_signal();
+	    }
+	    else if(visualization == "save specific signal")
+	    {
+		save_signal(50,100);
+	    }
             else if(visualization == "save frames")
             {
                 arma::mat plot = v;
@@ -283,7 +314,7 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
             else if(visualization == "save ekg")
             {
                 std::ofstream psdt;
-                psdt.open("/scratch15/lauer/ps_bp_t2e5/"+this->name_of_file, std::ios::app);
+                psdt.open("/scratch15/lauer/pe_sp_t5e4/"+this->name_of_file, std::ios::app);
                 psdt << _time << "\t" <<  pseudo_ekg() << std::endl;
                 psdt.close();
             }
@@ -333,6 +364,31 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
     return;
 }
 
+void Heart_Simulation::save_signal(int x, int y)
+{
+    
+    if(x < 0 || y < 0)
+    {
+	for(int i=0; i<MAT_SIZE_X; i++)
+	{
+	    for(int j=0; j<MAT_SIZE_Y; j++)
+	    {
+		std::ofstream outfile;
+		outfile.open(tmp_dir+"Signal/pos_"+std::to_string(i)+"_"+std::to_string(j)+".txt", std::ios::app);    
+		outfile << A[0](i,j) << std::endl;
+	    }
+	}
+	return;
+    }
+    else
+    {
+	std::ofstream outfile;
+	outfile.open(tmp_dir+"pos_"+std::to_string(x)+"_" + std::to_string(y) + ".txt", std::ios::app);
+	outfile << A[0](x,y) << std::endl;
+	return;
+    }
+}
+
 matrix Heart_Simulation::laplace()
 {
     matrix B;
@@ -342,6 +398,7 @@ matrix Heart_Simulation::laplace()
         for(int j=1; j<Ly-1; j++)
         {
             // seiten 
+	    
             B(i,j) = 4 * ( A[0](i+1,j) + A[0](i-1, j) + A[0](i, j+1) + A[0](i, j-1) )	
                 // ecken
                 + ( A[0](i+1, j+1) + A[0](i-1, j-1) + A[0](i+1, j-1) + A[0](i-1, j+1) )	
