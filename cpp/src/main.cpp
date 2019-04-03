@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
         int tau = 0;
         int freq = 0;
         int dist = 0;
-	int save_steps = 0;
+	int save_steps = 50000;
 
         // PREFIX is the dir name of output video if make_video is set to true
         std::string PREFIX;
@@ -77,17 +77,18 @@ int main(int argc, char *argv[])
 
 	if(argc == 1)
 	{
-	    std::array<std::array<int, 2>, 2> receivers = { { {150,10}, {150, 15} } };
-	    std::array<std::array<int, 2>, 1> transmitters = { { {150,20} } };
+	    std::array<std::array<int, 2>, 2> receivers = { { {10,10}, {10, 15} } };
+	    std::array<std::array<int, 2>, 1> transmitters = { { {10,20} } };
 	    arma::Mat<int>::fixed<2, 1> links = {-1, -1};
 	    simulation.set_sensors<2, 1>(receivers, transmitters, links);
-	    simulation.tmp_dir = "/scratch15/lauer/tmp/";
+	    tmp_dir ="/scratch15/lauer/tmp/"+NAME_ADDON+"/";
+	    simulation.tmp_dir = tmp_dir;
 	}
 	// wave velocity
 	else if(argc == 2)
 	{
 	    std::cout << "measure wave propagation velocity\n";
-	    name_of_file = simulation.namemodel() + "_velocity_measurment";
+	    name_of_file = NAME_ADDON + "_" + simulation.namemodel() + "_velocity_measurment";
 	    tmp_dir = "/scratch15/lauer/tmp/" + name_of_file + "/";
 	    std::cout << "temporary dire is " << tmp_dir << std::endl;
 	    simulation.velocity();
@@ -98,9 +99,8 @@ int main(int argc, char *argv[])
         {
             dist = atoi(argv[1]);
             tau = atoi(argv[2]);
-	    save_steps = 50000;
             PREFIX = "a";
-            name_of_file = simulation.namemodel() + "_unstable_self_excited_d_" + std::to_string(dist) + "_tau_" + std::to_string(tau); 
+            name_of_file = NAME_ADDON + "_" + simulation.namemodel() + "_unstable_self_excited_d_" + std::to_string(dist) + "_tau_" + std::to_string(tau); 
             tmp_dir = "/scratch15/lauer/tmp/" + name_of_file + "/";
             simulation.tmp_dir = tmp_dir;
             simulation.self_excited(dist,tau);
@@ -108,14 +108,14 @@ int main(int argc, char *argv[])
             std::cout << "temporary dire is " << tmp_dir << std::endl;
         }
 
-        // fast pulsing test
+        // antitachycardia pacing
         else if(argc == 4)
         {
             x1 = atoi(argv[1]); 
             y1 = atoi(argv[2]); 
             freq = atoi(argv[3]);
             PREFIX = "a";
-            name_of_file = simulation.namemodel() + "_bp_ACP_"+std::to_string(x1) + "," + std::to_string(y1) + "_"  + std::to_string(freq) + "ms";
+            name_of_file = NAME_ADDON + "_" + simulation.namemodel() + "_bp_ATP_"+std::to_string(x1) + "," + std::to_string(y1) + "_"  + std::to_string(freq) + "ms";
             tmp_dir = "/scratch15/lauer/tmp/" + name_of_file + "/";
             simulation.tmp_dir = tmp_dir;
             simulation.fast_pacing(x1, y1, freq);
@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
             y2 = atoi(argv[4]); 
             tau = atoi(argv[5]); 
             PREFIX = "a";
-            name_of_file = simulation.namemodel() + "_bp_2s_"+ std::to_string(x1) + "," + std::to_string(y1) +  "_" + std::to_string(x2) + "," + std::to_string(y2) + "_" + std::to_string(tau) + "ms";
+            name_of_file = NAME_ADDON + "_" + simulation.namemodel() + "_bp_2s_"+ std::to_string(x1) + "," + std::to_string(y1) +  "_" + std::to_string(x2) + "," + std::to_string(y2) + "_" + std::to_string(tau) + "ms";
             tmp_dir = "/scratch15/lauer/tmp/" + name_of_file + "/";
             simulation.tmp_dir = tmp_dir;
             simulation.set_sensors(x1, y1, x2, y2, tau);
@@ -156,7 +156,11 @@ int main(int argc, char *argv[])
 		return 0;
 	    }
 	    if(save_final_state == true)
-		std::system(("rm " + tmp_dir + "end_state*").c_str());
+	    {
+		std::system(("mkdir " + tmp_dir + "old_states").c_str());
+		std::system(("cp --backup " + tmp_dir + "end_state* old_states/").c_str());
+		std::system(("rm " + tmp_dir + "end_state* ").c_str());
+	    }
 	    std::cout << "data loaded succesfully\n";
 	}
 

@@ -1,10 +1,11 @@
+#include "progress_bar.hpp"
 #include "classes.h"
 #include <stdlib.h>
 #include <cstdlib>
 #include <ctime>
+#include <array>
 #include <algorithm>
 #include <experimental/random>
-#include <fstream>
 #include <iostream> 
 
 
@@ -194,13 +195,14 @@ void Heart_Simulation::save_frame(arma::mat& plot, std::string name)
 {
     std::ofstream outfile;
     outfile.open(name, std::ios::out);
-    int i,j;
-    for (i = 0; i < Lx; i++)
-    {
-        for (j = 0; j < Ly; j++)
-          outfile << plot(i,j) << " ";
-      outfile << std::endl;
-    }
+    // int i,j;
+    plot.save(name, arma::csv_ascii);
+    /* for (i = 0; i < Lx; i++) */
+    // {
+        // for (j = 0; j < Ly; j++)
+          // outfile << plot(i,j) << " ";
+      // outfile << std::endl;
+    // }
 
     outfile.close();
 }
@@ -238,7 +240,8 @@ void Heart_Simulation::check_if_terminated(int num_ps, int& counter)
 void Heart_Simulation::simulation(const std::string visualization, const bool spiral_waves, const bool save_final_state, const bool check_finished, int freq, const int skip_frames, const bool action_potential, int save_steps)
 {
     Gnuplot gp;
-    class plot plt(gp);
+    plot plt(gp);
+
     phasemap phase;
     phase_singularity_map PS(Lx, Ly);
     arma::mat &v = A[0];	
@@ -246,14 +249,33 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
     int num_ps = 0;
     int counter = 0;
     int i=0;
-    if(visualization=="save_signal")
+
+    std::ofstream *signal_out;
+
+    if(visualization=="save signal")
     {
+	// create the output dir
 	std::system(("mkdir -p " + tmp_dir + "Signal").c_str());
+
+	// has to be initalized on the heap else way to big
+	signal_out = new std::ofstream[HALF_SIZE_X];
+    
+	for(int i= 0; i<HALF_SIZE_X; i++)
+	{
+	    signal_out[i].open(tmp_dir+"Signal/line_"+std::to_string(i)+".txt",  std::ios::app);    
+	}
     }
+
+    // make a progress bar
+    ProgressBar *progb = new ProgressBar(time);
+    progb->SetFrequencyUpdate(500);
 
     for(i=0; i<time; i++)
     {
         _time = i;
+
+	// update progression bar
+	progb->Progressed(i);
 
         for(transmitter& trans:all_trans)
             trans.take(A[0],i, critical);
@@ -275,7 +297,7 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
             check_if_terminated(num_ps, counter);
         }
 
-        if( (i%skip_frames)==0)
+        if( (i%skip_frames)==0 )
         {	
 
             if(check_finished)
@@ -286,6 +308,7 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
 
                 check_if_terminated(num_ps, counter);
             }
+
 	    if(action_potential)
 		std::cout << v(80,150) << "\t" << h(80,150) << std::endl;
 
@@ -300,11 +323,11 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
 
 	    else if(visualization == "save signal" && i+save_steps>=time)
 	    {
-		save_signal();
+		save_signal(signal_out);
 	    }
 	    else if(visualization == "save specific signal")
 	    {
-		save_signal(50,100);
+		save_signal(all_trans[0].x(), all_trans[0].y());
 	    }
             else if(visualization == "save frames")
             {
@@ -314,7 +337,7 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
             else if(visualization == "save ekg")
             {
                 std::ofstream psdt;
-                psdt.open("/scratch15/lauer/pe_sp_t5e4/"+this->name_of_file, std::ios::app);
+                psdt.open(tmp_dir+this->name_of_file, std::ios::app);
                 psdt << _time << "\t" <<  pseudo_ekg() << std::endl;
                 psdt.close();
             }
@@ -328,6 +351,7 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
             }
         }
     }
+
     if(i !=time ) 
     {	 
         throw not_ended(); 
@@ -351,14 +375,22 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
 	save_frame(plot, std::string(tmp_dir+"fs_plottabel.dat") );
     }
     //for main so that termination success is known
-    if(check_finished)
+    if(visualization == "save signal")
+    {
+	for(int i=0; i<HALF_SIZE_X; i++)
+	{
+	    signal_out[i].close();
+	}
+	delete[] signal_out;
+    
+    }
+    //if(check_finished)
     //if(time == 0)
     //{
     //    std::ofstream outfile;
     //    outfile.open("termination_time.txt", std::ios::app);
 
-    //    // termination time has failur of the skipped time steps because it checks only every frame
-    //    outfile << " with freq " << freq <<  std::endl; 
+    //    // termination time has failur of the skipped time steps because it checks only every frame outfile << " with freq " << freq <<  std::endl; 
     //    outfile.close();
     //}
     return;
@@ -366,27 +398,37 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
 
 void Heart_Simulation::save_signal(int x, int y)
 {
-    
-    if(x < 0 || y < 0)
+    std::ofstream outfile;
+    outfile.open(tmp_dir+"pos_"+std::to_string(x)+"_" + std::to_string(y) + ".txt", std::ios::app);
+    outfile << _time << "\t" << A[0](x,y) << std::endl;
+    return;
+}
+
+void Heart_Simulation::calc_v_half()
+{
+    for(int i=0; i<HALF_SIZE_X; i++)
     {
-	for(int i=0; i<MAT_SIZE_X; i++)
+	for (int j = 0; j < HALF_SIZE_Y; j++) 
 	{
-	    for(int j=0; j<MAT_SIZE_Y; j++)
-	    {
-		std::ofstream outfile;
-		outfile.open(tmp_dir+"Signal/pos_"+std::to_string(i)+"_"+std::to_string(j)+".txt", std::ios::app);    
-		outfile << A[0](i,j) << std::endl;
-	    }
+	    v_half(i,j)=(A[0](2*i,2*j) + A[0](2*i+1,2*j) + A[0](2*i,2*j+1) + A[0](2*i+1,2*j+1))/4;
 	}
-	return;
     }
-    else
+
+}
+
+void Heart_Simulation::save_signal(std::ofstream *outfile)
+{
+    calc_v_half();
+
+    for(int i=0; i<HALF_SIZE_X; i+=1)
     {
-	std::ofstream outfile;
-	outfile.open(tmp_dir+"pos_"+std::to_string(x)+"_" + std::to_string(y) + ".txt", std::ios::app);
-	outfile << A[0](x,y) << std::endl;
-	return;
+	for(int j=0; j<HALF_SIZE_Y; j+=1)
+	{
+	    outfile[i] << v_half(i,j)<<"\t";
+	}
+	outfile[i] << std::endl;
     }
+    return;
 }
 
 matrix Heart_Simulation::laplace()
@@ -398,7 +440,6 @@ matrix Heart_Simulation::laplace()
         for(int j=1; j<Ly-1; j++)
         {
             // seiten 
-	    
             B(i,j) = 4 * ( A[0](i+1,j) + A[0](i-1, j) + A[0](i, j+1) + A[0](i, j-1) )	
                 // ecken
                 + ( A[0](i+1, j+1) + A[0](i-1, j-1) + A[0](i+1, j-1) + A[0](i-1, j+1) )	
@@ -410,6 +451,7 @@ matrix Heart_Simulation::laplace()
     B = dt*D/(6*dx*dx) * B;
     return B;
 }
+
 double Heart_Simulation::pseudo_ekg()
 {
     double pseudo_freq = arma::accu(A[0])/(Lx*Ly); 

@@ -16,7 +16,7 @@ MS::MS(double _dt, double _dx, double _D, int _Lx, int _Ly, int _time, double _v
 	    h(span(0, int(Lx/2)+50), span(int(Ly/2)-48,int(Ly/2)+50)).fill(.0);
         }
 
-	else if(initial_setup == "sp_plane")
+	else if(initial_setup == "sp plane")
 	{
 	    v(span(0, int(Lx/2)), span(0,Ly-1)).fill(1.);
             h(span(0, Lx-1), span(0, int(Ly/2))).fill(0);

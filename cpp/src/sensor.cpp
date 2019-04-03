@@ -199,9 +199,9 @@ int transmitter::take(arma::mat& A, int time, double critical_value)
     std::rotate(SAVE.rbegin(), SAVE.rbegin() + 1, SAVE.rend());
     double rec= mean( mean( A(span(pos[0]-1,pos[0]+1), span(pos[1]-1,pos[1]+1)) ) ) ;
     SAVE[0] = rec;
-    if(time>1000000 && time%20 == 0)
-        write_data(time, rec, 1,  "irrelevant");
-    msr_frq(rec, time, critical_value);
+    // if(time>1000000 && time%20 == 0)
+        // write_data(time, rec, 1,  "irrelevant");
+    //msr_frq(rec, time, critical_value);
     return 0;
 }
 
