@@ -222,11 +222,11 @@ int main(int argc, char *argv[])
 	if(make_video)
         {
             std::string mk_dir = "mkdir " + tmp_dir + " /scratch15/lauer/video/"+PREFIX;
-            int del_2 = std::system((mk_dir).c_str());
+            std::system((mk_dir).c_str());
 	    std::string command =   "python3 plt.py " + PREFIX + "/" +  name_of_file + " " + tmp_dir;
 	    std::cout << command << std::endl;
-	    int del_3 = std::system((command).c_str());
+	    std::system((command).c_str());
         }		
         
-	return 1;
+	return 0;
 }

@@ -12,8 +12,12 @@ MS::MS(double _dt, double _dx, double _D, int _Lx, int _Ly, int _time, double _v
 
         if(initial_setup == "sp")
         {
-	    v(span(0, int(Lx/2)+50), span(int(Ly/2)-50,int(Ly/2)-48)).fill(1.);
-	    h(span(0, int(Lx/2)+50), span(int(Ly/2)-48,int(Ly/2)+50)).fill(.0);
+	    // v(span(0, int(Lx/2)+50), span(int(Ly/2)-50,int(Ly/2)-48)).fill(1.);
+	    // h(span(0, int(Lx/2)+50), span(int(Ly/2)-48,int(Ly/2)+50)).fill(.0);
+	    v(span(0, int(Lx/2)+int(Lx/6.)), span(int(Ly/2)-int(Ly/6.),int(Ly/2)-int(Ly/6.)+5)).fill(1.);
+	    h(span(0, int(Lx/2)+int(Lx/6.)), span(int(Ly/2)-int(Ly/6.)+5,int(Ly/2)+int(Ly/6.))).fill(.0);
+	    v(span(int(Lx/2)-int(Lx/6.),int(Lx/2)-int(Lx/6.)+5), span(0, int(Ly/2)+int(Ly/6.)) ).fill(1.);
+	    h(span(int(Lx/2)-int(Lx/6.)+5,int(Lx/2)+int(Lx/6.)), span(0, int(Ly/2)+int(Ly/6.))).fill(.0);
         }
 
 	else if(initial_setup == "sp plane")
@@ -23,11 +27,11 @@ MS::MS(double _dt, double _dx, double _D, int _Lx, int _Ly, int _time, double _v
 	}
 	else if(initial_setup == "velocity_measurement")
 	{
-	    v(span(0, Ly-1), span(0, 4)).fill(0.1);
+	    v(span(0, Lx-1), span(0, 4)).fill(0.1);
 	}
 
         else if(initial_setup == "pulse")
-            v(span(149,151), span(149,151)).fill(1);
+            v(span(49,51), span(149,151)).fill(1);
 	
 	A.push_back(v);
 	A.push_back(h);

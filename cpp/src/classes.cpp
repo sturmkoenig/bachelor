@@ -66,8 +66,8 @@ void Heart_Simulation::velocity()
 void Heart_Simulation::self_excited(int dist,int tau)
 {
 
-    all_trans.push_back(transmitter(50+dist, 150));
-    all_rec.push_back(receiver(50,150));
+    all_trans.push_back(transmitter(int(Lx/2)+dist, int(Ly/2)));
+    all_rec.push_back(receiver(int(Lx/2),int(Ly/2.)));
     //all_rec[0].set_external_force( [](int time) {if(time<1){return 1.;}else{return 0.;}});
     //all_trans[1].name_of_file = std::to_string(dist) + "_" + std::to_string(tau) + ".dat";
     link_trans LA= {&all_trans[0],tau};
@@ -267,15 +267,15 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
     }
 
     // make a progress bar
-    ProgressBar *progb = new ProgressBar(time);
-    progb->SetFrequencyUpdate(500);
+    // ProgressBar *progb = new ProgressBar(time);
+    // progb->SetFrequencyUpdate(500);
 
     for(i=0; i<time; i++)
     {
         _time = i;
 
 	// update progression bar
-	progb->Progressed(i);
+	// progb->Progressed(i);
 
         for(transmitter& trans:all_trans)
             trans.take(A[0],i, critical);
@@ -309,6 +309,7 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
                 check_if_terminated(num_ps, counter);
             }
 
+
 	    if(action_potential)
 		std::cout << v(80,150) << "\t" << h(80,150) << std::endl;
 
@@ -325,6 +326,7 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
 	    {
 		save_signal(signal_out);
 	    }
+	    
 	    else if(visualization == "save specific signal")
 	    {
 		save_signal(all_trans[0].x(), all_trans[0].y());
@@ -336,12 +338,19 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
             }
             else if(visualization == "save ekg")
             {
+		// save pseudo ekg
                 std::ofstream psdt;
                 psdt.open(tmp_dir+this->name_of_file, std::ios::app);
                 psdt << _time << "\t" <<  pseudo_ekg() << std::endl;
                 psdt.close();
-            }
-            else if(visualization == "plot with PS")
+
+		// save AP at the position of the trasmitter
+		std::ofstream ap_out;
+		ap_out.open("AP.dat", std::ios::app);
+		ap_out << _time << "\t" << A[0](all_trans[0].x(),all_trans[0].y()) << std::endl;
+		ap_out.close();
+	    }
+	    else if(visualization == "plot with PS")
             {
                 gp << "set title \"" << i << "\"\n";
                 arma::mat plot = v + PS.data;
