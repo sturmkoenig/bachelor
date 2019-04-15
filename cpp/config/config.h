@@ -17,13 +17,13 @@
 *       everything else yields no visualisation or save
  ------------------------------------------------------------------------------------------------*/
 
-const std::string visualization  = "plot";
+const std::string visualization  = "plot with PS";
 
 // if true load the approriate files out of the temporary folder
-const bool load = false;
+const bool load = true;
 
 // if set to true not the standard path is taken but rahter file_load_path
-const bool load_specific_file = false;
+const bool load_specific_file = true;
 
 // the path that is loaded when load_specific_file is true
 const std::string file_load_path="/home/sturmkoenig/Documents/Physik/Bachlor/saved_states/MS_chaotic_dynamic_2e4ms/";
