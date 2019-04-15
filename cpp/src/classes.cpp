@@ -351,24 +351,25 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
 		ap_out.close();
 	    }
 	    else if(visualization == "plot with PS")
-            {
+	    {
 		phase.make_phasemap(v, h);
 		PS.line_integral(phase);
-                num_ps = PS.count_singularitys();
+		num_ps = PS.count_singularitys();
 		std::cout << num_ps << std::endl;
+
+		// num_ps = PS.count_singularitys();
+		// check_if_terminated(num_ps, counter);
+		gp << "set title \"" << i << "\"\n";
+		arma::mat plot = v + PS.data;
+		// plot(arma::span(all_trans[0].x()-1, all_trans[0].x()+1), arma::span(all_trans[0].y()-1, all_trans[0].y()+1)).fill(1);
+		// plot(arma::span(all_rec[0].x()-1, all_rec[0].x()+1), arma::span(all_rec[0].y()-1, all_rec[0].y()+1)).fill(0.1);
+		plt.heatmap(plot);
 		if(num_ps == 0)
 		{
 		    std::cout << "great success\n";
 		    return;
-		}
-		// num_ps = PS.count_singularitys();
-		// check_if_terminated(num_ps, counter);
-                gp << "set title \"" << i << "\"\n";
-                arma::mat plot = v + PS.data;
-                // plot(arma::span(all_trans[0].x()-1, all_trans[0].x()+1), arma::span(all_trans[0].y()-1, all_trans[0].y()+1)).fill(1);
-                // plot(arma::span(all_rec[0].x()-1, all_rec[0].x()+1), arma::span(all_rec[0].y()-1, all_rec[0].y()+1)).fill(0.1);
-                plt.heatmap(plot);
-            }
+		} 
+	    }
         }
     }
 
