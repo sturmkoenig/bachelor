@@ -355,9 +355,10 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
 		phase.make_phasemap(v, h);
 		PS.line_integral(phase);
                 num_ps = PS.count_singularitys();
+		std::cout << nump_ps;
 		if(num_ps == 0)
 		{
-		    std::cout << "great success\n"
+		    std::cout << "great success\n";
 		    return;
 		}
 		// num_ps = PS.count_singularitys();
