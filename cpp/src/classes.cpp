@@ -3,7 +3,8 @@
 #include <stdlib.h>
 #include <cstdlib>
 #include <ctime>
-#include <array> #include <algorithm>
+#include <array>
+#include <algorithm>
 #include <experimental/random>
 #include <iostream> 
 
