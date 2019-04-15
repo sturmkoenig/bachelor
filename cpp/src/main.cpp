@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
 	    std::array<std::array<int, 2>, 1> transmitters = { { {10,20} } };
 	    arma::Mat<int>::fixed<2, 1> links = {-1, -1};
 	    simulation.set_sensors<2, 1>(receivers, transmitters, links);
-	    tmp_dir ="/scratch15/lauer/tmp/"+NAME_ADDON+"/";
+	    tmp_dir =TEMP_DIR+NAME_ADDON+"/";
 	    simulation.tmp_dir = tmp_dir;
 	}
 	// wave velocity
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
 	{
 	    std::cout << "measure wave propagation velocity\n";
 	    name_of_file = NAME_ADDON + "_" + simulation.namemodel() + "_velocity_measurment";
-	    tmp_dir = "/scratch15/lauer/tmp/" + name_of_file + "/";
+	    tmp_dir = TEMP_DIR + name_of_file + "/";
 	    std::cout << "temporary dire is " << tmp_dir << std::endl;
 	    simulation.velocity();
 	}
@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
             tau = atoi(argv[2]);
             PREFIX = "a";
             name_of_file = NAME_ADDON + "_" + simulation.namemodel() + "_unstable_self_excited_d_" + std::to_string(dist) + "_tau_" + std::to_string(tau); 
-            tmp_dir = "/scratch15/lauer/tmp/" + name_of_file + "/";
+            tmp_dir = TEMP_DIR + name_of_file + "/";
             simulation.tmp_dir = tmp_dir;
             simulation.self_excited(dist,tau);
             std::cout << "starting simulation with " << dist << "\t" << tau << "\n";
@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
             freq = atoi(argv[3]);
             PREFIX = "a";
             name_of_file = NAME_ADDON + "_" + simulation.namemodel() + "_bp_ATP_"+std::to_string(x1) + "," + std::to_string(y1) + "_"  + std::to_string(freq) + "ms";
-            tmp_dir = "/scratch15/lauer/tmp/" + name_of_file + "/";
+            tmp_dir = TEMP_DIR + name_of_file + "/";
             simulation.tmp_dir = tmp_dir;
             simulation.fast_pacing(x1, y1, freq);
         }
@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
             tau = atoi(argv[5]); 
             PREFIX = "a";
             name_of_file = NAME_ADDON + "_" + simulation.namemodel() + "_bp_2s_"+ std::to_string(x1) + "," + std::to_string(y1) +  "_" + std::to_string(x2) + "," + std::to_string(y2) + "_" + std::to_string(tau) + "ms";
-            tmp_dir = "/scratch15/lauer/tmp/" + name_of_file + "/";
+            tmp_dir = TEMP_DIR + name_of_file + "/";
             simulation.tmp_dir = tmp_dir;
             simulation.set_sensors(x1, y1, x2, y2, tau);
         }

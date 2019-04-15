@@ -16,8 +16,10 @@
 *	    -last frame = plotable of last frame
 *       everything else yields no visualisation or save
  ------------------------------------------------------------------------------------------------*/
-
 const std::string visualization  = "plot with PS";
+
+// sets the Temporary dire everything is written to
+const std::string TEMP_DIR = "/scratch15/lauer/tmp/";
 
 // if true load the approriate files out of the temporary folder
 const bool load = true;
