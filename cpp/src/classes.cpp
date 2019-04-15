@@ -355,7 +355,7 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
 		phase.make_phasemap(v, h);
 		PS.line_integral(phase);
 		num_ps = PS.count_singularitys();
-		std::cout << num_ps << std::endl;
+		std::cout << _time << "\t" << num_ps << std::endl;
 
 		// num_ps = PS.count_singularitys();
 		// check_if_terminated(num_ps, counter);
@@ -364,11 +364,11 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
 		// plot(arma::span(all_trans[0].x()-1, all_trans[0].x()+1), arma::span(all_trans[0].y()-1, all_trans[0].y()+1)).fill(1);
 		// plot(arma::span(all_rec[0].x()-1, all_rec[0].x()+1), arma::span(all_rec[0].y()-1, all_rec[0].y()+1)).fill(0.1);
 		plt.heatmap(plot);
-		if(num_ps == 0)
-		{
-		    std::cout << "great success\n";
-		    return;
-		} 
+		// if(num_ps == 0)
+		// {
+		    // std::cout << "great success\n";
+		    // return;
+		// } 
 	    }
         }
     }
