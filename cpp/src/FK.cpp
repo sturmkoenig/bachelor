@@ -33,6 +33,11 @@ std::string FK::namemodel()
     return name;
 }
 
+bool FK::load(std::string load_path)
+{
+    return false;
+}
+
 bool FK::load()
 {
     bool a,b,c;

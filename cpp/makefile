@@ -9,7 +9,7 @@ MOPT = --no-print-directory -j6
 
 
 #flags
-LDFLAGS = -std=c++17 -Wall -Wextra -Werror -O3\
+LDFLAGS = -std=c++17 -mtune=native -Wall -Wextra -Werror -O3\
 -Wno-error=unused-but-set-variable -Wno-error=unused-variable\
 -Wno-error=unused-parameter $(addprefix -I,$(IPATH)) \
 -Wno-error=maybe-uninitialized \
@@ -17,7 +17,7 @@ LDFLAGS = -std=c++17 -Wall -Wextra -Werror -O3\
 -lboost_filesystem -fopenmp #-fprofile-use#-fprofile-use
 
 #### Hier die Compiler flags ###################################################
-CXXFLAGS = -g -std=c++17 -Wall -Wextra -Werror -O3\
+CXXFLAGS = -g -std=c++17 -mtune=native -Wall -Wextra -Werror -O3\
 -Wno-error=unused-but-set-variable -Wno-error=unused-variable\
 -Wno-error=unused-parameter $(addprefix -I,$(IPATH)) \
 -Wno-error=maybe-uninitialized \

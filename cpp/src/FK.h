@@ -2,6 +2,7 @@
 
 #include <armadillo>
 #include <vector>
+#include <string>
 
 #include "param.h"
 #include "classes.h"
@@ -31,6 +32,7 @@ public:
 	void euler(std::vector< matrix >&) override; 
 
 	bool load() override;
+	bool load(std::string);
 	std::string namemodel() override;
 	matrix f_inf();
 	matrix tau_f();
