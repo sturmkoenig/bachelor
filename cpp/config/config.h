@@ -18,6 +18,7 @@
 *	    -output phasemap
 *       everything else yields no visualisation or save
  ------------------------------------------------------------------------------------------------*/
+// pick one option from above
 const std::string visualization  = "output phasemap";
 
 // sets the Temporary dire everything is written to
