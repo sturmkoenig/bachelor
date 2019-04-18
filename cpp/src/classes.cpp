@@ -353,7 +353,7 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
 	    // output Plottable data for Phase Singularitys
 	    else if(visualization == "output PS")
 	    {
-		// open filen:wq
+		// open file
 		std::ofstream output_PS,output_SIM;
 		output_PS.open(tmp_dir + "PS_at_time_" + std::to_string(_time) + ".dat", std::ios::out);
 		output_SIM.open(tmp_dir + "SIM_at_time_" + std::to_string(_time) + ".dat", std::ios::out);
@@ -366,20 +366,32 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
 		output_PS << PS.data;
 		output_SIM << v;
 	    }
+	    // writes a file with a matrix representation of the current phase map
+	    else if(visualization == "output phasemap")
+	    {
+		phase.make_phasemap(v,h);
+		std::ofstream stream;
+		
+		// plots the data using the phasemap function
+		phase.data_out(stream, tmp_dir + "phase_at_time_" + std::to_string(_time));
+	    }
 	    else if(visualization == "plot with PS")
 	    {
+
+		// update the Phasesingularity tracking
 		phase.make_phasemap(v, h);
 		PS.line_integral(phase);
+
+		// print out the number of Phasesingularitys to the standard out 
 		num_ps = PS.count_singularitys();
 		std::cout << _time << "\t" << num_ps << std::endl;
 
-		// num_ps = PS.count_singularitys();
-		// check_if_terminated(num_ps, counter);
+		// plots the heatmap of the simulation with the position of phasesingularitys marked
 		gp << "set title \"" << i << "\"\n";
 		arma::mat plot = v + PS.data;
-		// plot(arma::span(all_trans[0].x()-1, all_trans[0].x()+1), arma::span(all_trans[0].y()-1, all_trans[0].y()+1)).fill(1);
-		// plot(arma::span(all_rec[0].x()-1, all_rec[0].x()+1), arma::span(all_rec[0].y()-1, all_rec[0].y()+1)).fill(0.1);
 		plt.heatmap(plot);
+
+		// check if num_ps is equal to zero
 		// if(num_ps == 0)
 		// {
 		    // std::cout << "great success\n";
@@ -389,10 +401,13 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
         }
     }
 
+    // throw exception if time is fishy
     if(i !=time ) 
     {	 
         throw not_ended(); 
     }
+
+    // save final state if specified
     if(save_final_state)
     {
         arma::mat svng_v = v;
@@ -406,11 +421,14 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
 		value.dump_to_file(tmp_dir);
 
     }
+
+    // outputs a plottable file of the last state
     if(visualization == "last frame")
     {
 	arma::mat plot = v;
 	save_frame(plot, std::string(tmp_dir+"fs_plottabel.dat") );
     }
+
     //for main so that termination success is known
     if(visualization == "save signal")
     {

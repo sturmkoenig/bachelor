@@ -1,5 +1,7 @@
 #pragma once
 #include <armadillo>
+#include <string>
+#include <fstream>
 #include "plot.h"
 #include "gnuplot-iostream.h"
 #include "param.h"
@@ -32,6 +34,13 @@ public:
 	int x_dim(){ return data.n_rows;}
 
 	int y_dim(){ return data.n_cols;}
+
+	void data_out(std::ofstream& stream, std::string file_name)
+	{
+	    stream.open(file_name, std::ios::out);	
+	    stream << data;
+	    return;
+	}
 
 	double val(int i, int j)
 	{
