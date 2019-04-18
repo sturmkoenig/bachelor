@@ -350,6 +350,22 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
 		ap_out << _time << "\t" << A[0](all_trans[0].x(),all_trans[0].y()) << std::endl;
 		ap_out.close();
 	    }
+	    // output Plottable data for Phase Singularitys
+	    else if(visualization == "output PS")
+	    {
+		// open filen:wq
+		std::ofstream output_PS,output_SIM;
+		output_PS.open(tmp_dir + "PS_at_time_" + std::to_string(_time) + ".dat", std::ios::out);
+		output_SIM.open(tmp_dir + "SIM_at_time_" + std::to_string(_time) + ".dat", std::ios::out);
+
+		// update phasesingularity map
+		phase.make_phasemap(v, h);
+		PS.line_integral(phase);
+
+		// output data
+		output_PS << PS.data;
+		output_SIM << v;
+	    }
 	    else if(visualization == "plot with PS")
 	    {
 		phase.make_phasemap(v, h);

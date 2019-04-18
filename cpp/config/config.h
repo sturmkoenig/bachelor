@@ -14,9 +14,10 @@
 *           -save signal = saves the signal of EVERY pixel starting 10000 timesteps before the simulation ends
 *	    -save specific signal = save the signal at the in classes.cpp specified place
 *	    -last frame = plotable of last frame
+*	    -output PS
 *       everything else yields no visualisation or save
  ------------------------------------------------------------------------------------------------*/
-const std::string visualization  = "plot";
+const std::string visualization  = "output PS";
 
 // sets the Temporary dire everything is written to
 const std::string TEMP_DIR = "/scratch15/lauer/tmp/";
@@ -55,6 +56,6 @@ const int SIMULATION_TIME = 100000000;
 
 // initial form of the spiral wave. Options are "velocity_measurement" "sp plane" and "sp" "pulse"
 // REMEMBER IF LOAD=TRUE NO INITIAL_FORM!!!
-const std::string initial_form = "sp";
+const std::string initial_form = "vanilla";
 
-const std::string NAME_ADDON = "two_sensor_entropie_swipe1086_1128_" + std::to_string(MAT_SIZE_X) + "x" + std::to_string(MAT_SIZE_Y);
+const std::string NAME_ADDON = "PS_plot" + std::to_string(MAT_SIZE_X) + "x" + std::to_string(MAT_SIZE_Y);
