@@ -15,9 +15,10 @@
 *	    -save specific signal = save the signal at the in classes.cpp specified place
 *	    -last frame = plotable of last frame
 *	    -output PS
+*	    -output phasemap
 *       everything else yields no visualisation or save
  ------------------------------------------------------------------------------------------------*/
-const std::string visualization  = "output PS";
+const std::string visualization  = "output phasemap";
 
 // sets the Temporary dire everything is written to
 const std::string TEMP_DIR = "/scratch15/lauer/tmp/";

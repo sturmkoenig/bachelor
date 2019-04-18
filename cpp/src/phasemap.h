@@ -39,6 +39,7 @@ public:
 	{
 	    stream.open(file_name, std::ios::out);	
 	    stream << data;
+	    stream.close();
 	    return;
 	}
 
