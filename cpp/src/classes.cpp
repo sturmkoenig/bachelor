@@ -184,10 +184,10 @@ void Heart_Simulation::boundary_conditions(void)
 {
     for(matrix& B:A)
     {
-        B.col(0)=B.col(1);
-        B.row(0)=B.row(1);
-        B.col(B.n_cols-1)=B.col(B.n_cols-2);
-        B.row(B.n_rows-1)=B.row(B.n_rows-2);
+        B.col(0)=B.col(2);
+        B.row(0)=B.row(2);
+        B.col(B.n_cols-1)=B.col(B.n_cols-3);
+        B.row(B.n_rows-1)=B.row(B.n_rows-3);
     }
 }
 

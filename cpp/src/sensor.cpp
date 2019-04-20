@@ -1,7 +1,6 @@
 #include "sensor.h"
 #include <algorithm>
 #include <cmath>
-
 #include <iostream>
 #include <iterator>
 #include <fstream>
@@ -108,8 +107,7 @@ void receiver::set_transmitter(link_trans trans)
     all_trans.push_back(trans);
 }
 
-int receiver::delay_time()
-{
+int receiver::delay_time() {
     return (all_trans[0].tau);
 }
 
@@ -201,7 +199,7 @@ int transmitter::take(arma::mat& A, int time, double critical_value)
     SAVE[0] = rec;
     // if(time>1000000 && time%20 == 0)
         // write_data(time, rec, 1,  "irrelevant");
-    //msr_frq(rec, time, critical_value);
+   // msr_frq(rec, time, critical_value);
     return 0;
 }
 
