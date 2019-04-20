@@ -251,8 +251,17 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
     int i=0;
 
     std::ofstream *signal_out;
+    if(visualization == "output number PS")
+    {
+	signal_out = new std::ofstream(tmp_dir + "Number_of_Ps.dat", std::ios::out);
+    }
 
-    if(visualization=="save signal")
+    else if(visualization == "save ekg")
+    {
+	signal_out = new std::ofstream(tmp_dir + "Pseudo_EKG.dat", std::ios::out);
+    }
+
+    else if(visualization=="save signal")
     {
 	// create the output dir
 	std::system(("mkdir -p " + tmp_dir + "Signal").c_str());
@@ -336,19 +345,18 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
                 arma::mat plot = v;
                 save_frame(plot, std::string(tmp_dir+"frame"+std::to_string(i)+".dat"));
             }
-            else if(visualization == "save ekg")
-            {
-		// save pseudo ekg
-                std::ofstream psdt;
-                psdt.open(tmp_dir+this->name_of_file, std::ios::app);
-                psdt << _time << "\t" <<  pseudo_ekg() << std::endl;
-                psdt.close();
-
+	    else if(visualization == "save AP")
+	    {
 		// save AP at the position of the trasmitter
 		std::ofstream ap_out;
 		ap_out.open("AP.dat", std::ios::app);
 		ap_out << _time << "\t" << A[0](all_trans[0].x(),all_trans[0].y()) << std::endl;
 		ap_out.close();
+	    }
+            else if(visualization == "save ekg")
+            {
+		// save pseudo ekg
+                *signal_out << _time << "\t" <<  pseudo_ekg() << std::endl;
 	    }
 	    // output Plottable data for Phase Singularitys
 	    else if(visualization == "output PS")
@@ -365,6 +373,16 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
 		// output data
 		output_PS << PS.data;
 		output_SIM << v;
+	    }
+	    else if(visualization == "output number PS")
+	    {
+		// update phasingularity tracking
+		phase.make_phasemap(v, h);
+		PS.line_integral(phase);
+		num_ps = PS.count_singularitys();
+
+		// print to file
+		*signal_out << _time << "\t" << num_ps << std::endl;
 	    }
 	    // writes a file with a matrix representation of the current phase map
 	    else if(visualization == "output phasemap")
@@ -438,6 +456,12 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
 	}
 	delete[] signal_out;
     
+    }
+
+    else if(visualization == "output number PS")
+    {
+	signal_out->close();
+	delete[] signal_out;
     }
     //if(check_finished)
     //if(time == 0)
