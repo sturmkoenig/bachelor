@@ -44,7 +44,7 @@ TARDIR = bin
 
 
 #### Hier gibst du einfach den namen der fertigen ausführbaren an###############
-TARNAME = xps_ex
+TARNAME = $(HOSTNAME)
 
 
 ifneq (,$(findstring Windows,$(PATH)))
