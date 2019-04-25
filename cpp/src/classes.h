@@ -50,7 +50,7 @@ protected:
 public:
 	const int HALF_SIZE_X = int(MAT_SIZE_X/2);
 	const int HALF_SIZE_Y = int(MAT_SIZE_Y/2);
-	void save_signal(int x, int y);
+	void save_signal(std::ofstream*,int x, int y);
 	void save_signal(std::ofstream*);
 	std::vector< receiver > all_rec;
 	std::vector< transmitter> all_trans;

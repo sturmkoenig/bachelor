@@ -184,10 +184,10 @@ void Heart_Simulation::boundary_conditions(void)
 {
     for(matrix& B:A)
     {
-        B.col(0)=B.col(2);
-        B.row(0)=B.row(2);
-        B.col(B.n_cols-1)=B.col(B.n_cols-3);
-        B.row(B.n_rows-1)=B.row(B.n_rows-3);
+        B.col(0)=B.col(1);
+        B.row(0)=B.row(1);
+        B.col(B.n_cols-1)=B.col(B.n_cols-2);
+        B.row(B.n_rows-1)=B.row(B.n_rows-2);
     }
 }
 
@@ -224,7 +224,7 @@ void Heart_Simulation::check_if_terminated(int num_ps, int& counter)
     } 
     else
         counter++;
-    if(counter == 2000)
+    if(counter == 200)
     { 
         std::ofstream outfile;
         outfile.open("termination_time.txt", std::ios::app);
@@ -242,6 +242,7 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
     Gnuplot gp;
     plot plt(gp);
 
+    // try to find better offset params so that ps is constantly seen by programm
     phasemap phase;
     phase_singularity_map PS(Lx, Ly);
     arma::mat &v = A[0];	
@@ -251,6 +252,7 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
     int i=0;
 
     std::ofstream *signal_out;
+
     if(visualization == "output number PS")
     {
 	signal_out = new std::ofstream(tmp_dir + "Number_of_Ps.dat", std::ios::out);
@@ -274,17 +276,22 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
 	    signal_out[i].open(tmp_dir+"Signal/line_"+std::to_string(i)+".txt",  std::ios::app);    
 	}
     }
+    else if(visualization=="save specific signal")
+    {
+	signal_out = new std::ofstream;
+	signal_out->open(tmp_dir + "signal_out_at_" + std::to_string(all_trans[0].x()) + "_" + std::to_string(all_trans[0].y()) + ".dat", std::ios::out);
+    }
 
     // make a progress bar
-    // ProgressBar *progb = new ProgressBar(time);
-    // progb->SetFrequencyUpdate(500);
+    ProgressBar *progb = new ProgressBar(time);
+    progb->SetFrequencyUpdate(500);
 
     for(i=0; i<time; i++)
     {
         _time = i;
 
 	// update progression bar
-	// progb->Progressed(i);
+	progb->Progressed(i);
 
         for(transmitter& trans:all_trans)
             trans.take(A[0],i, critical);
@@ -298,13 +305,6 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
                 A[1](arma::span(0, Lx-70), arma::span( Ly/2-20, Ly/2)).fill(0.); 
         }
 
-        if(counter != 0)
-        {
-            phase.make_phasemap(v, h);
-            PS.line_integral(phase);
-            num_ps = PS.count_singularitys();
-            check_if_terminated(num_ps, counter);
-        }
 
         if( (i%skip_frames)==0 )
         {	
@@ -318,6 +318,13 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
                 check_if_terminated(num_ps, counter);
             }
 
+	    if(counter != 0)
+            {
+                phase.make_phasemap(v, h);
+                PS.line_integral(phase);
+                num_ps = PS.count_singularitys();
+                check_if_terminated(num_ps, counter);
+            }
 
 	    if(action_potential)
 		std::cout << v(80,150) << "\t" << h(80,150) << std::endl;
@@ -338,7 +345,7 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
 	    
 	    else if(visualization == "save specific signal")
 	    {
-		save_signal(all_trans[0].x(), all_trans[0].y());
+		save_signal(signal_out, all_trans[0].x(), all_trans[0].y());
 	    }
             else if(visualization == "save frames")
             {
@@ -463,6 +470,13 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
 	signal_out->close();
 	delete[] signal_out;
     }
+    
+    else if(visualization=="save specific signal")
+    {
+	signal_out->close();
+	delete signal_out;
+    }
+
     //if(check_finished)
     //if(time == 0)
     //{
@@ -475,11 +489,9 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
     return;
 }
 
-void Heart_Simulation::save_signal(int x, int y)
+void Heart_Simulation::save_signal(std::ofstream *outfile, int x, int y)
 {
-    std::ofstream outfile;
-    outfile.open(tmp_dir+"pos_"+std::to_string(x)+"_" + std::to_string(y) + ".txt", std::ios::app);
-    outfile << _time << "\t" << A[0](x,y) << std::endl;
+    *outfile << _time << "\t" << A[0](x,y) << std::endl;
     return;
 }
 

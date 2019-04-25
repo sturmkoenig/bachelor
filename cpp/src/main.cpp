@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
 	if(argc == 1)
 	{
 	    std::array<std::array<int, 2>, 2> receivers = { { {10,10}, {10, 15} } };
-	    std::array<std::array<int, 2>, 1> transmitters = { { {10,20} } };
+	    std::array<std::array<int, 2>, 1> transmitters = { { {47,109} } };
 	    arma::Mat<int>::fixed<2, 1> links = {-1, -1};
 	    simulation.set_sensors<2, 1>(receivers, transmitters, links);
 	    tmp_dir =TEMP_DIR+NAME_ADDON+"/";
