@@ -286,15 +286,10 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
     }
 
     // make a progress bar
-    ProgressBar *progb = new ProgressBar(time);
-    progb->SetFrequencyUpdate(500);
 
     for(i=0; i<time; i++)
     {
         _time = i;
-
-	// update progression bar
-	progb->Progressed(i);
 
         for(transmitter& trans:all_trans)
             trans.take(A[0],i, critical);
