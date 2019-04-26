@@ -466,7 +466,7 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
     else if(visualization == "output number PS")
     {
 	signal_out->close();
-	delete[] signal_out;
+	delete signal_out;
     }
     
     else if(visualization=="save specific signal")
