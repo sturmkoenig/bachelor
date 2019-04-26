@@ -270,6 +270,9 @@ void Heart_Simulation::simulation(const std::string visualization, const bool sp
 
 	// has to be initalized on the heap else way to big
 	signal_out = new std::ofstream[HALF_SIZE_X];
+	
+	// print ouput file
+	std::cout << tmp_dir + "Signal" << std::endl;
     
 	for(int i= 0; i<HALF_SIZE_X; i++)
 	{
