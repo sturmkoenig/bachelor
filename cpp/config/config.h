@@ -20,7 +20,7 @@
 *       everything else yields no visualisation or save
  ------------------------------------------------------------------------------------------------*/
 // pick one option from above
-const std::string visualization  = "output number PS";
+const std::string visualization  = "plot";
 
 // sets the Temporary dire everything is written to
 const std::string TEMP_DIR = "/scratch15/lauer/tmp/";
@@ -33,17 +33,17 @@ const bool load_specific_file = true;
 
 // the path that is loaded when load_specific_file is true
 const std::string file_load_path="/home/sturmkoenig/Documents/Physik/Bachlor/saved_states/MS_chaotic_dynamic_2e4ms/";
-// const std::string file_load_path="/scratch15/lauer/932/";
-//const std::string file_load_path="/home/sturmkoenig/Documents/Physik/Bachlor/saved_states/MS_chaotic_dynamic_2e4ms/pulse_for_4e5ms_with_5_1143/";
+// const std::string file_load_path="/home/sturmkoenig/Documents/Physik/Bachlor/saved_states/MS_chaotic_dynamic_2e4ms/pulse_for_4e5ms_with_5_1143/";
+// const std::string file_load_path="/home/sturmkoenig/Documents/Physik/Bachlor/plots/new_stability_test/after_perturbation/tmp/stability_test300x300_MS_unstable_self_excited_d_7_tau_3050/";
 
 // make video right away? not available on the cluster
 const bool make_video = false;
 
 // save the last calculated step to tmp_dir in armadillo readable form so the simulation can be continued
-const bool save_final_state = false;
+const bool save_final_state = true;
 
 // check if spiral waves are terminated 
-const bool check_finished = true; 
+const bool check_finished = false; 
 
 // skiped frames, important for every visualization and also set how often termination of SP is checked
 const int skpfr = 50;
@@ -55,10 +55,10 @@ const bool perturbed = false;
 const bool action_potential = false;
 
 // sets the time a system is simulated
-const int SIMULATION_TIME = 1200000;
+const int SIMULATION_TIME = 10000000;
 
 // initial form of the spiral wave. Options are "velocity_measurement" "sp plane" and "sp" "pulse"
 // REMEMBER IF LOAD=TRUE NO INITIAL_FORM!!!
 const std::string initial_form = "vanilla";
 
-const std::string NAME_ADDON = "number_ps_without_stimulation" + std::to_string(MAT_SIZE_X) + "x" + std::to_string(MAT_SIZE_Y);
+const std::string NAME_ADDON = "find_working_param" + std::to_string(MAT_SIZE_X) + "x" + std::to_string(MAT_SIZE_Y);
