@@ -1,7 +1,7 @@
 #include <string>
 #include "../src/param.h"
 
-#define UNSTABLE
+#define STABLE
 
 /*------------------------------------------------------------------------------------------------
 *        Generell configurations 
@@ -26,10 +26,10 @@ const std::string visualization  = "plot";
 const std::string TEMP_DIR = "/scratch15/lauer/tmp/";
 
 // if true load the approriate files out of the temporary folder
-const bool load = true;
+const bool load = false;
 
 // if set to true not the standard path is taken but rahter file_load_path
-const bool load_specific_file = true;
+const bool load_specific_file = false;
 
 // the path that is loaded when load_specific_file is true
 const std::string file_load_path="/home/sturmkoenig/Documents/Physik/Bachlor/saved_states/MS_chaotic_dynamic_2e4ms/";
@@ -40,7 +40,7 @@ const std::string file_load_path="/home/sturmkoenig/Documents/Physik/Bachlor/sav
 const bool make_video = false;
 
 // save the last calculated step to tmp_dir in armadillo readable form so the simulation can be continued
-const bool save_final_state = true;
+const bool save_final_state = false;
 
 // check if spiral waves are terminated 
 const bool check_finished = false; 
@@ -55,10 +55,10 @@ const bool perturbed = false;
 const bool action_potential = false;
 
 // sets the time a system is simulated
-const int SIMULATION_TIME = 10000000;
+const int SIMULATION_TIME = 12500000;
 
 // initial form of the spiral wave. Options are "velocity_measurement" "sp plane" and "sp" "pulse"
 // REMEMBER IF LOAD=TRUE NO INITIAL_FORM!!!
-const std::string initial_form = "vanilla";
+const std::string initial_form = "sp plane";
 
 const std::string NAME_ADDON = "find_working_param" + std::to_string(MAT_SIZE_X) + "x" + std::to_string(MAT_SIZE_Y);
